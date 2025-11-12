@@ -79,12 +79,12 @@ Optional Streamlit or Power BI dashboard built from `data/gold/` to show results
 
 ## Team Roles
 
-| Role              | Responsibility                                         |
-| ----------------- | ------------------------------------------------------ |
-| Data Engineer     | Build Airflow, Docker setup, Postgres/MinIO containers |
-| Data Analyst      | Write WRDS extraction and transformation scripts       |
-| Fin/Quant Analyst | Define event windows, regression, and visualization    |
-| CI/CD Lead        | Manage GitHub Actions, testing, and documentation      |
+| Role | Responsibility |
+|------|----------------|
+| **Data Engineer** | Build and containerize the local environment using **Docker Compose** (Airflow, Postgres, MinIO). Implement data lake structure (Bronze → Silver → Gold) and manage credential security and local orchestration. |
+| **Data Analyst** | Design and maintain **WRDS extraction scripts** (PitchBook, Preqin, Compustat), perform data cleaning and transformation with Polars, and document schema design for each stage of the pipeline. |
+| **Fin/Quant Analyst** | Define **event windows** (pre/post M&A), calculate enterprise value (EV) and profitability metrics, run regression analyses, and create visual analytics to interpret the results for the final presentation. |
+| **Data Architect & QA Engineer** | Define overall **pipeline architecture and metadata standards**, ensure modularity and observability in Airflow DAGs, and develop **automated validation tests** for schema integrity, data completeness, and reproducibility. |
 
 ---
 

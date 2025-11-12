@@ -1,2 +1,139 @@
-# wrds-ma-impact-pipeline  
-Team: Pandas Express
+# M&A Value Impact Pipeline (Local Deployment)
+
+## Project Description
+
+This project builds a complete data engineering pipeline that explores how mergers and acquisitions (M&A) affect a company's enterprise value (EV) and profitability. The data comes from WRDS (PitchBook, Preqin, and Compustat) and moves through a full local data workflow: ingestion, storage, transformation, orchestration, analysis, and testing.
+
+Everything runs locally using **Docker and Apache Airflow**, with data stored in **PostgreSQL** and files organized in Bronze/Silver/Gold layers. This setup demonstrates modular design, reproducibility, and automation through GitHub Actions.
+
+---
+
+## Research Question
+
+When a public company buys another firm, does it gain or lose enterprise value, and does that depend on deal size or industry?
+
+---
+
+## Architecture Overview
+
+```
+project-root/
+├── dags/                     ← Airflow DAG (extract → transform → analyze)
+│   └── ma_pipeline_dag.py
+├── src/
+│   ├── extract_wrds.py       ← Pulls M&A + Compustat data from WRDS
+│   ├── transform_clean.py    ← Cleans and joins deal + financial data
+│   ├── analyze_regression.py ← Calculates ΔEV% and runs regression
+│   └── utils/                ← Helper functions and schema validation
+├── data/
+│   ├── bronze/               ← Raw WRDS CSVs
+│   ├── silver/               ← Cleaned intermediate data
+│   └── gold/                 ← Final outputs and analysis results
+├── tests/                    ← Pytest unit and data quality tests
+├── requirements.txt
+├── Dockerfile
+├── docker-compose.yml        ← Runs Airflow, Postgres, MinIO locally
+└── README.md
+```
+
+---
+
+## Pipeline Components
+
+### 1. Data Ingestion
+
+Pulls M&A and financial data from WRDS (PitchBook and Preqin). Saves raw CSVs into `data/bronze/`.
+
+### 2. Data Storage
+
+Data is stored in PostgreSQL or MinIO (S3-like) containers with schemas for `fact_transactions`, `fact_ev`, `fact_financials`, and `dim_company`.
+
+### 3. Data Transformation and Analysis
+
+Uses Polars to clean, normalize, and join data by ticker or WRDS ID. Calculates changes in EV and margins:
+
+```
+ΔEV% = (EV_30d_after − EV_5d_before) / EV_5d_before
+ΔMargin% = EBITDA_margin_post − EBITDA_margin_pre
+```
+
+Runs regression: `ΔEV% ~ deal_size_ratio + industry_dummies`.
+
+### 4. Orchestration
+
+An Airflow DAG automates the full workflow — extract, transform, analyze — and can be scheduled to run daily or on demand.
+
+### 5. Containerization and CI/CD
+
+Everything runs in Docker Compose with Airflow, Postgres, and MinIO containers. GitHub Actions handles linting, testing, and schema validation before merges.
+
+### 6. Testing
+
+Pytest covers schema integrity, missing/null checks, and logical validation (e.g., deal sizes not negative). Includes a small regression smoke test.
+
+### 7. Visualization (Optional)
+
+Optional Streamlit or Power BI dashboard built from `data/gold/` to show results by industry or deal size.
+
+---
+
+## Team Roles
+
+| Role              | Responsibility                                         |
+| ----------------- | ------------------------------------------------------ |
+| Data Engineer     | Build Airflow, Docker setup, Postgres/MinIO containers |
+| Data Analyst      | Write WRDS extraction and transformation scripts       |
+| Fin/Quant Analyst | Define event windows, regression, and visualization    |
+| CI/CD Lead        | Manage GitHub Actions, testing, and documentation      |
+
+---
+
+## Data Engineering Principles
+
+| Principle       | Implementation                                          |
+| --------------- | ------------------------------------------------------- |
+| Scalability     | Bronze → Silver → Gold layers allow incremental updates |
+| Modularity      | Each script has a single, clear function                |
+| Reusability     | Reusable helper functions and schema validators         |
+| Observability   | Airflow logs and test reports track pipeline health     |
+| Security        | WRDS credentials stored locally, not in repo            |
+| Reproducibility | Docker ensures identical environments                   |
+
+---
+
+## Tech Stack
+
+* **Python:** Polars, Pandas, Statsmodels
+* **Storage:** PostgreSQL, MinIO (S3)
+* **Orchestration:** Apache Airflow (Docker Compose)
+* **CI/CD:** GitHub Actions, Pytest
+* **Visualization:** Streamlit or Power BI (optional)
+
+---
+
+## How to Run Locally
+
+```
+git clone https://github.com/yourteam/ma-pipeline.git
+cd ma-pipeline
+docker-compose up --build
+```
+
+Access Airflow at [http://localhost:8080](http://localhost:8080) and run the `ma_pipeline_dag` to execute the workflow.
+
+---
+
+## Deliverables
+
+* Full GitHub repository and working pipeline
+* README documentation and architecture diagram
+* 5–10 minute walkthrough video
+* Final results file (`/data/gold/final_results.parquet`) with ΔEV% and regression output
+
+---
+
+## Summary
+
+A reproducible, locally containerized data pipeline demonstrating end-to-end engineering — from data ingestion to regression analysis — to answer one question:
+
+**Do M&A deals actually create value, and what drives the difference?**

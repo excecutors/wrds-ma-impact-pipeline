@@ -114,7 +114,7 @@ Optional Streamlit or Power BI dashboard built from `data/gold/` to show results
 ## How to Run Locally
 
 ```
-git clone https://github.com/yourteam/ma-pipeline.git
+git clone https://github.com/excecutors/wrds-ma-impact-pipeline.git
 cd ma-pipeline
 docker-compose up --build
 ```

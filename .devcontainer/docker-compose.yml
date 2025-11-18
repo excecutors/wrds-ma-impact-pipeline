@@ -1,0 +1,50 @@
+# .devcontainer/docker-compose.yml
+
+version: '3.8'
+
+services:
+  # 1. 你的 "app" 开发容器
+  app:
+    build:
+      context: ..
+      dockerfile: .devcontainer/Dockerfile
+    container_name: ma_project_app
+    
+    # 挂载你的整个项目文件夹到容器的 /workspace 目录
+    # ".." 表示 docker-compose.yml 文件的上一级目录
+    volumes:
+      - ../:/workspace:cached 
+    
+    # 从 .env 文件加载环境变量
+    env_file:
+      - ../.env
+    
+    # 确保数据库启动后, app 才启动
+    depends_on:
+      postgres_db:
+        condition: service_healthy # 等待数据库健康检查通过
+        
+  # 2. 你的 PostgreSQL 数据库服务
+  postgres_db:
+    image: postgres:14-alpine
+    container_name: ma_project_db
+    restart: always
+    ports:
+      - "5432:5432" # 映射到你本地，以便 DBeaver/DataGrip 连接
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      # 持久化存储
+      - postgres_data_volume:/var/lib/postgresql/data
+      # 运行初始化脚本
+      - ../postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data_volume: # 定义持久化卷

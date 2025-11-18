@@ -42,7 +42,7 @@ project-root/
 
 ### 1. Data Ingestion
 
-Pulls M&A and financial data from WRDS (PitchBook and Preqin). Saves raw CSVs into `data/bronze/`.
+Pulls M&A and financial data from WRDS (PitchBook, CRSP and Compustat). Saves raw CSVs into `data/bronze/`.
 
 ### 2. Data Storage
 

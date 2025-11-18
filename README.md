@@ -18,6 +18,10 @@ When a public company buys another firm, does it gain or lose enterprise value, 
 
 ```
 project-root/
+├── .devcontainer/              # Configuration for reproducible environment
+│   ├── devcontainer.json       # VS Code config
+│   ├── docker-compose.yml      # Defines App + Postgres services
+│   └── Dockerfile              # Python environment definition
 ├── dags/                     ← Airflow DAG (extract → transform → analyze)
 │   └── ma_pipeline_dag.py
 ├── src/
@@ -25,15 +29,14 @@ project-root/
 │   ├── transform_clean.py    ← Cleans and joins deal + financial data
 │   ├── analyze_regression.py ← Calculates ΔEV% and runs regression
 │   └── utils/                ← Helper functions and schema validation
-├── data/
-│   ├── bronze/               ← Raw WRDS CSVs
-│   ├── silver/               ← Cleaned intermediate data
-│   └── gold/                 ← Final outputs and analysis results
+│       └── db.py               # Database connection helper
+├── postgres/
+│   └── init.sql                # Database schema initialization (Bronze/Silver/Gold)
 ├── tests/                    ← Pytest unit and data quality tests
-├── requirements.txt
-├── Dockerfile
-├── docker-compose.yml        ← Runs Airflow, Postgres, MinIO locally
-└── README.md
+├── .env                        # Secrets (NOT synced to Git)
+├── .gitignore                  # Git ignore rules
+├── requirements.txt            # Python dependencies
+└── README.md                   # Project Documentation
 ```
 
 ---
@@ -112,13 +115,67 @@ Optional Streamlit or Power BI dashboard built from `data/gold/` to show results
 ---
 
 ## How to Run Locally
-
+1. Clone the repository:  
 ```
 git clone https://github.com/excecutors/wrds-ma-impact-pipeline.git
-cd ma-pipeline
-docker-compose up --build
+cd wrds-ma-impact-pipeline
+```
+2. Configure Environment Variables
+Create a file named .env in the project root directory. Copy the content below and fill in your credentials.  
+```
+# .env
+# Local Database Credentials (DO NOT CHANGE)
+POSTGRES_USER=admin
+POSTGRES_PASSWORD=strongpassword123
+POSTGRES_DB=ma_pipeline_db
+
+# Your WRDS Username (Required)
+WRDS_USER=your_wrds_username
+WRDS_PASSWORD=our_wrds_password
 ```
 
+3. Launch the Environment (Docker)
+We use Docker Compose to spin up the database and the application environment. Run the following command from the project root:
+```
+# Builds the Python environment and starts PostgreSQL in the background
+docker-compose -f .devcontainer/docker-compose.yml up -d --build
+```
+*Wait a moment for the database to initialize.*
+
+4. Running the Pipeline  
+**Step 1: Data Ingestion (Bronze Layer)**   
+This script pulls historical data (2000.01-2024.12) from WRDS and loads it into our local PostgreSQL database.   
+Since the environment is containerized, you need to execute the script inside the running container:  
+```
+# 1. Enter the application container
+docker exec -it ma_project_app bash
+```
+  
+# 2. Run the ingestion script (inside the container)
+
+```
+python src/extract_wrds.py
+```
+*Estimated time: 10-30 minutes depending on network.*    
+    
+**Step 2: Verify Data**   
+You can connect to the database using DBeaver or DataGrip from your host machine (outside VS Code):   
+- Host: localhost   
+- Port: 5432   
+- Database: ma_pipeline_db   
+- Username: admin   
+- Password: strongpassword123      
+Run this SQL to check if data loaded:
+```
+SELECT COUNT(*) FROM bronze.ot_glb_deal;
+```
+5. Shutdown
+When you are finished, you can stop and remove the containers with:
+```
+docker-compose -f .devcontainer/docker-compose.yml down
+```
+......(other steps)........   
+  
 Access Airflow at [http://localhost:8080](http://localhost:8080) and run the `ma_pipeline_dag` to execute the workflow.
 
 ---

@@ -1,0 +1,18 @@
+# WRDS
+wrds
+
+# PostgreSQL
+sqlalchemy
+psycopg2-binary # Driver for Postgres
+
+# Data Transformation & Analysis
+pandas
+polars           #
+statsmodels      #
+
+# Utils
+python-dotenv    # For loading .env files
+
+# Orchestration & Testing
+apache-airflow   #
+pytest           #

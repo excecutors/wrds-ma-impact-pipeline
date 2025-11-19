@@ -2,7 +2,7 @@
 
 ## Project Description
 
-This project builds a complete data engineering pipeline that explores how mergers and acquisitions (M&A) affect a company's enterprise value (EV) and profitability. The data comes from WRDS (PitchBook, Preqin, and Compustat) and moves through a full local data workflow: ingestion, storage, transformation, orchestration, analysis, and testing.
+This project builds a complete data engineering pipeline that explores how mergers and acquisitions (M&A) affect a company's enterprise value (EV) and profitability. The data comes from WRDS (PitchBook, and Compustat) and moves through a full local data workflow: ingestion, storage, transformation, orchestration, analysis, and testing.
 
 Everything runs locally using **Docker and Apache Airflow**, with data stored in **PostgreSQL** and files organized in Bronze/Silver/Gold layers. This setup demonstrates modular design, reproducibility, and automation through GitHub Actions.
 
@@ -10,8 +10,7 @@ Everything runs locally using **Docker and Apache Airflow**, with data stored in
 
 ## Research Question
 
-When a public company buys another firm, does it gain or lose enterprise value, and does that depend on deal size or industry?
-
+When a public company completes an acquisition, does its enterprise value improve from the prior quarter to the following quarter, and how does this vary by deal size, industry, or acquirer characteristics?
 ---
 
 ## Architecture Overview
@@ -45,7 +44,7 @@ project-root/
 
 ### 1. Data Ingestion
 
-Pulls M&A and financial data from WRDS (PitchBook, CRSP and Compustat). Saves raw CSVs into `data/bronze/`.
+Pulls M&A deal data from PitchBook and quarterly financial fundamentals from Compustat (fundq). These allow us to compute enterprise value in the quarter before and after each deal. Raw files stored in `data/bronze/`.
 
 ### 2. Data Storage
 
@@ -53,10 +52,14 @@ Data is stored in PostgreSQL or MinIO (S3-like) containers with schemas for `fac
 
 ### 3. Data Transformation and Analysis
 
-Uses Polars to clean, normalize, and join data by ticker or WRDS ID. Calculates changes in EV and margins:
+Joins PitchBook companies to Compustat via gvkey (using WRDS “linking table”), aligns each deal date to pre- and post-quarter financial statements, and computes enterprise value for both quarters.
 
 ```
-ΔEV% = (EV_30d_after − EV_5d_before) / EV_5d_before
+EV_pre  = EV in quarter ending immediately before deal date
+EV_post = EV in quarter ending immediately after deal date
+
+ΔEV% = (EV_post − EV_pre) / EV_pre
+
 ΔMargin% = EBITDA_margin_post − EBITDA_margin_pre
 ```
 
@@ -85,7 +88,7 @@ Streamlit dashboard built from `data/gold/` to show results by industry or deal 
 | Role | Responsibility |
 |------|----------------|
 | **Data Engineer** | Build and containerize the local environment using **Docker Compose** (Airflow, Postgres, MinIO). Implement data lake structure (Bronze → Silver → Gold) and manage credential security and local orchestration. |
-| **Data Analyst** | Design and maintain **WRDS extraction scripts** (PitchBook, Preqin, Compustat), perform data cleaning and transformation with Polars, and document schema design for each stage of the pipeline. |
+| **Data Analyst** | Design and maintain **WRDS extraction scripts** (PitchBook, and Compustat), perform data cleaning and transformation with Polars, and document schema design for each stage of the pipeline. |
 | **Fin/Quant Analyst** | Define **event windows** (pre/post M&A), calculate enterprise value (EV) and profitability metrics, run regression analyses, and create visual analytics to interpret the results for the final presentation. |
 | **Data Architect & QA Engineer** | Define overall **pipeline architecture and metadata standards**, ensure modularity and observability in Airflow DAGs, and develop **automated validation tests** for schema integrity, data completeness, and reproducibility. |
 
@@ -176,3 +179,44 @@ Access Airflow at [http://localhost:8080](http://localhost:8080) and run the `ma
 A reproducible, locally containerized data pipeline demonstrating end-to-end engineering — from data ingestion to regression analysis — to answer one question:
 
 **Do M&A deals actually create value, and what drives the difference?**
+
+---
+
+## DAG Architecture
+
+                   BRONZE
+ ┌──────────────────────────────────┐
+ │ extract_wrds.py                  │
+ │ - wrds → postgres.bronze         │
+ └──────────────────────────────────┘
+                   │
+                   ▼
+                   SILVER
+ ┌──────────────────────────────────┐
+ │ transform_clean.py               │
+ │ - filter NA public acquirers     │
+ │ - join deal + company + industry │
+ │ - join link → Compustat          │
+ │ - create clean "silver" dataset  │
+ └──────────────────────────────────┘
+                   │
+                   ▼
+                   GOLD
+ ┌──────────────────────────────────┐
+ │ transform_clean.py (same file)   │
+ │ - compute EV + ΔEV               │
+ │ - compute margins                │
+ │ - compute ratios                 │
+ │ - write final_results.parquet    │
+ │ - write gold.final_results table │
+ └──────────────────────────────────┘
+                   │
+                   ▼
+               ANALYSIS
+ ┌──────────────────────────────────┐
+ │ analyze_regression.py            │
+ │ - read gold                      │
+ │ - regression                     │
+ │ - save results                   │
+ │ - charts                         │
+ └──────────────────────────────────┘

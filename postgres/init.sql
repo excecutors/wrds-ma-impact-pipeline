@@ -37,7 +37,6 @@ CREATE TABLE IF NOT EXISTS bronze.ot_glb_company (
     ownershipstatus VARCHAR(100),
     companyfinancingstatus VARCHAR(100),
     universe VARCHAR(50),
-    employees BIGINT,
     exchange VARCHAR,
     ticker VARCHAR(50),
     primaryindustrysector VARCHAR(100),
@@ -63,7 +62,6 @@ CREATE TABLE IF NOT EXISTS bronze.ccmxpf_lnkhist (
     lpermco BIGINT,
     linkdt DATE,
     linkenddt DATE
-    /* ... 补充你需要的其他字段 ... */
 );
 
 CREATE TABLE IF NOT EXISTS bronze.fundq (

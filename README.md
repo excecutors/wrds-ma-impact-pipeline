@@ -184,39 +184,48 @@ A reproducible, locally containerized data pipeline demonstrating end-to-end eng
 
 ## DAG Architecture
 
-                   BRONZE
- ┌──────────────────────────────────┐
- │ extract_wrds.py                  │
- │ - wrds → postgres.bronze         │
- └──────────────────────────────────┘
-                   │
-                   ▼
-                   SILVER
- ┌──────────────────────────────────┐
- │ transform_clean.py               │
- │ - filter NA public acquirers     │
- │ - join deal + company + industry │
- │ - join link → Compustat          │
- │ - create clean "silver" dataset  │
- └──────────────────────────────────┘
-                   │
-                   ▼
-                   GOLD
- ┌──────────────────────────────────┐
- │ transform_clean.py (same file)   │
- │ - compute EV + ΔEV               │
- │ - compute margins                │
- │ - compute ratios                 │
- │ - write final_results.parquet    │
- │ - write gold.final_results table │
- └──────────────────────────────────┘
-                   │
-                   ▼
-               ANALYSIS
- ┌──────────────────────────────────┐
- │ analyze_regression.py            │
- │ - read gold                      │
- │ - regression                     │
- │ - save results                   │
- │ - charts                         │
- └──────────────────────────────────┘
+```mermaid
+graph TD
+    subgraph BRONZE["BRONZE LAYER"]
+        A[extract_wrds.py]
+        A1["wrds → postgres.bronze"]
+        A --> A1
+    end
+    
+    subgraph SILVER["SILVER LAYER"]
+        B[transform_clean.py]
+        B1["filter NA public acquirers"]
+        B2["join deal + company + industry"]
+        B3["join link → Compustat fundq (quarterly)"]
+        B4["create clean 'silver' dataset"]
+        B --> B1 --> B2 --> B3 --> B4
+    end
+    
+    subgraph GOLD["GOLD LAYER"]
+        C[transform_clean.py]
+        C1["compute EV_pre, EV_post + ΔEV% (by quarter)"]
+        C2["compute margins"]
+        C3["compute ratios"]
+        C4["write final_results.parquet"]
+        C5["write gold.final_results table"]
+        C --> C1 --> C2 --> C3 --> C4 --> C5
+    end
+    
+    subgraph ANALYSIS["ANALYSIS LAYER"]
+        D[analyze_regression.py]
+        D1["read gold"]
+        D2["regression"]
+        D3["save results"]
+        D4["charts"]
+        D --> D1 --> D2 --> D3 --> D4
+    end
+    
+    A1 --> B
+    B4 --> C
+    C5 --> D
+    
+    style BRONZE fill:#cd7f32,stroke:#8b5a00,color:#fff
+    style SILVER fill:#c0c0c0,stroke:#808080,color:#000
+    style GOLD fill:#ffd700,stroke:#daa520,color:#000
+    style ANALYSIS fill:#4a90e2,stroke:#2e5c8a,color:#fff
+```

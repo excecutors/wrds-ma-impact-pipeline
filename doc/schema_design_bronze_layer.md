@@ -1,6 +1,6 @@
 **Project Scope:**
 We are targeting **Mergers & Acquisitions (M&A)** occurring between **2000-01-01 and 2024-11-30**. 
-     
+   
 **Description of Bronze Layer:** Direct replica of WRDS tables. Applied basic filtering. No joins or renaming applied.
   
 **Target Filters:**

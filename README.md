@@ -120,8 +120,8 @@ Streamlit dashboard built from `data/gold/` to show results by industry or deal 
 git clone https://github.com/excecutors/wrds-ma-impact-pipeline.git
 cd wrds-ma-impact-pipeline
 ```
-2. Configure Environment Variables
-Create a file named .env in the project root directory. Copy the content below and fill in your credentials.  
+2. Setup Configuration
+Create a `.env` file in the project root and fill in your credentials:  
 ```
 # .env
 # Local Database Credentials (DO NOT CHANGE)
@@ -134,47 +134,29 @@ WRDS_USER=your_wrds_username
 WRDS_PASSWORD=our_wrds_password
 ```
 
-3. Launch the Environment (Docker)
-We use Docker Compose to spin up the database and the application environment. Run the following command from the project root:
-```
-# Builds the Python environment and starts PostgreSQL in the background
+3. Start the Environment
+Run the following command from the project root to build and start the containers:  
+```bash
 docker-compose -f .devcontainer/docker-compose.yml up -d --build
 ```
-*Wait a moment for the database to initialize.*
-
-4. Running the Pipeline  
-**Step 1: Data Ingestion (Bronze Layer)**   
-This script pulls historical data (2000.01-2024.12) from WRDS and loads it into our local PostgreSQL database.   
-Since the environment is containerized, you need to execute the script inside the running container:  
-```
-# 1. Enter the application container
-docker exec -it ma_project_app bash
-```
   
-# 2. Run the ingestion script (inside the container)
+4. Run Data Ingestion  
+Execute the ingestion script inside the running application container. The script will automatically handle WRDS authentication using your `.env` file.  
+```bash
+# 1. Enter the container
+docker exec -it ma_project_app bash
 
-```
+# 2. Run the script (inside the container)
 python src/extract_wrds.py
 ```
-*Estimated time: 10-30 minutes depending on network.*    
-    
-**Step 2: Verify Data**   
-You can connect to the database using DBeaver or DataGrip from your host machine (outside VS Code):   
-- Host: localhost   
-- Port: 5432   
-- Database: ma_pipeline_db   
-- Username: admin   
-- Password: strongpassword123      
-Run this SQL to check if data loaded:
-```
-SELECT COUNT(*) FROM bronze.ot_glb_deal;
-```
-5. Shutdown
-When you are finished, you can stop and remove the containers with:
-```
+5. Verify Data
+Connect to the database (localhost:5432) using DBeaver or DataGrip and check the tables in the bronze schema.
+  
+6. Shutdown. 
+When finished, stop the containers:  
+```bash
 docker-compose -f .devcontainer/docker-compose.yml down
-```
-......(other steps)........   
+``` 
   
 Access Airflow at [http://localhost:8080](http://localhost:8080) and run the `ma_pipeline_dag` to execute the workflow.
 

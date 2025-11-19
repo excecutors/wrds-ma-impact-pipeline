@@ -105,25 +105,9 @@ We are targeting **Mergers & Acquisitions (M&A)** occurring between **2000-01-01
 | `industrycode` | Code  |
 | `isprimary` | Flag for primary industry |
 
----
 
-## 5. Table: `dim_company_link` (Linking Table)
-* **Source:** WRDS / CRSP / CRSP Compustat Merged / Compustat CRSP Link 
-* **WRDS Table Name:** `crsp_a_ccm.ccmxpf_lnkhist` 
-* **Link:** https://wrds-www.wharton.upenn.edu/pages/get-data/center-research-security-prices-crsp/annual-update/crspcompustat-merged/compustat-crsp-link/  
-* **Purpose:** Bridge table to link Compustat (`gvkey`) and CRSP (`lpermco`).
 
-| Field | Description |
-| :--- | :--- |
-| `gvkey` | Compustat Key |
-| `lpermco` | CRSP Permanent Company ID |
-| `linkprim` | Primary Link Flag. Filter: `IN ('P', 'C')`|
-| `linkdt` | Link Start Date. Ensure: `announceddate >= linkdt` |
-| `linkenddt` | Link End Date. Ensure: `announceddate <= linkenddt` (or IS NULL) |
-
----
-
-## 6. Table: `fact_financial_quarterly` (Fundamentals)
+## 5. Table: `fact_financial_quarterly` (Fundamentals)
 * **Source:** Compustat - Capital IQ / North America / Fundamentals Quarterly 
 * **WRDS Table Name:** `comp_na_daily_all.fundq`  
 * **Link:** https://wrds-www.wharton.upenn.edu/pages/get-data/compustat-capital-iq-standard-poors/compustat/north-america-daily/fundamentals-quarterly/  
@@ -138,19 +122,9 @@ We are targeting **Mergers & Acquisitions (M&A)** occurring between **2000-01-01
 | `dlttq` | Long-Term Debt - Total |
 | `dlcq` | Debt in Current Liabilities |
 | `cheq` | Cash and Short-Term Investments |
+| `prccq` | Price Close - Quarter|
+| `prchq` |  (prchq) Price High - Quarter|
+| `prclq` |  (prclq) Price Low - Quarter|
+| `cshoq` | Common Shares Outstanding|
 | `oibdpq` | Operating Income Before Depreciation (EBITDA) |
 
----
-
-## 7. Table: `fact_price_daily` (Market Data)
-* **Source:** WRDS / CRSP / Daily Stock File 
-* **WRDS Table Name:** `crsp_a_stock.dsf`  
-* **Link:** https://wrds-www.wharton.upenn.edu/pages/get-data/center-research-security-prices-crsp/annual-update/stock-security-files/daily-stock-file/  
-* **Purpose:** To calculate **Market Capitalization** exactly at *t-5* and *t+30*.
-
-| Field | Description |
-| :--- | :--- |
-| `permco` | CRSP Company ID |
-| `date` | Calendar Date. Locate `announceddate - 5 days` and `announceddate + 30 days`  |
-| `prc` | Closing Price |
-| `shrout` | Shares Outstanding (in thousands) |

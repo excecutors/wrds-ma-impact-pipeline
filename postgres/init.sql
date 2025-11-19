@@ -56,13 +56,7 @@ CREATE TABLE IF NOT EXISTS bronze.ot_glb_companyindustryrelation (
     lastupdated DATE
 );
 
-CREATE TABLE IF NOT EXISTS bronze.ccmxpf_lnkhist (
-    gvkey VARCHAR(20),
-    linkprim VARCHAR(10),
-    lpermco BIGINT,
-    linkdt DATE,
-    linkenddt DATE
-);
+
 
 CREATE TABLE IF NOT EXISTS bronze.fundq (
     gvkey VARCHAR(20),
@@ -72,15 +66,14 @@ CREATE TABLE IF NOT EXISTS bronze.fundq (
     dlttq DECIMAL(20, 4),
     dlcq DECIMAL(20, 4),
     cheq DECIMAL(20, 4),
+    prccq DECIMAL(20, 4), -- Price Close - Quarter
+    prchq DECIMAL(20, 4), -- Price High - Quarter
+    prclq DECIMAL(20, 4), -- Price Low - Quarter
+    cshoq DECIMAL(20, 4), -- Common Shares Outstanding
     oibdpq DECIMAL(20, 4) -- EBITDA 
 );
 
-CREATE TABLE IF NOT EXISTS bronze.dsf (
-    permco BIGINT,
-    date DATE,
-    prc DECIMAL(20, 4),
-    shrout DECIMAL(20, 4)
-);
+
 
 GRANT ALL PRIVILEGES ON SCHEMA bronze TO admin;
 GRANT ALL PRIVILEGES ON SCHEMA silver TO admin;

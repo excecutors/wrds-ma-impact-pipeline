@@ -74,9 +74,9 @@ Everything runs in Docker Compose with Airflow, Postgres, and MinIO containers. 
 
 Pytest covers schema integrity, missing/null checks, and logical validation (e.g., deal sizes not negative). Includes a small regression smoke test.
 
-### 7. Visualization (Optional)
+### 7. Visualization
 
-Optional Streamlit or Power BI dashboard built from `data/gold/` to show results by industry or deal size.
+Streamlit dashboard built from `data/gold/` to show results by industry or deal size.
 
 ---
 

@@ -4,7 +4,6 @@ import logging
 from src.utils.db import get_postgres_engine
 from dotenv import load_dotenv
 
-# 设置日志
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def get_wrds_connection():
@@ -39,7 +38,7 @@ def extract_and_load(db_wrds, db_postgres_engine):
     
     bronze_schema = 'bronze'
     
-    # 1. M&A 交易表 (fact_deal): 应用你的所有过滤器 
+    # 1. fact_deal 
     try:
         logging.info("Extracting filtered 'ot_glb_deal' data...")
         deal_query = """

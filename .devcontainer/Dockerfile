@@ -1,7 +1,7 @@
 # .devcontainer/Dockerfile
 
 # 使用一个标准的 Python 镜像
-FROM python:3.10-slim
+FROM python:3.11-slim
 
 # 设置工作目录
 WORKDIR /workspace

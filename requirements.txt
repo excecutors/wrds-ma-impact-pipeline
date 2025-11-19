@@ -14,5 +14,4 @@ statsmodels      #
 python-dotenv    # For loading .env files
 
 # Orchestration & Testing
-apache-airflow   #
 pytest           #

@@ -1,23 +1,22 @@
-/* .devcontainer/devcontainer.json */
 {
   "name": "M&A Data Pipeline Environment",
   
-  // 告诉 VS Code 使用我们的 docker-compose 文件
+  // use the existing docker-compose file
   "dockerComposeFile": "docker-compose.yml",
   
-  // 告诉 VS Code 附加到 'app' 服务
+  // tell VS Code to attach to the 'app' service
   "service": "app",
   
-  // 告诉 VS Code 附加后打开哪个文件夹
+  // tell VS Code which folder to open once attached
   "workspaceFolder": "/workspace",
   
-  // 自动为所有团队成员安装推荐的 VS Code 插件
+  // automatically install recommended VS Code extensions for all team members
   "customizations": {
     "vscode": {
       "extensions": [
-        "ms-python.python",         // Python 官方插件
-        "ms-python.pylance",        // 智能提示
-        "ms-azuretools.vscode-docker" // Docker 插件
+        "ms-python.python",         // python
+        "ms-python.pylance",        // intelligent code completion
+        "ms-azuretools.vscode-docker" // Docker extension
       ]
     }
   }

@@ -146,15 +146,22 @@ docker-compose -f .devcontainer/docker-compose.yml up -d --build
 4. Run Data Ingestion  
 Execute the ingestion script inside the running application container. The script will automatically handle WRDS authentication using your `.env` file.  
 ```bash
-# 1. Enter the container
+# 1. Enter the application container
 docker exec -it ma_project_app bash
 
-# 2. Run the script (inside the container)
+# 2. Step 1: Ingest Data (Bronze)
 python src/extract_wrds.py
+
+# 3. Step 2: Transform & Clean (Silver)
+python src/transform_clean.py
+
+# 4. Step 3: Compute Metrics (Gold)
+python src/gold_layer.py
 ```
+Then, you
 5. Verify Data
-Connect to the database (localhost:5432) using DBeaver or DataGrip and check the tables in the bronze schema.
-  
+Connect via DBeaver (`localhost:5432`, `user: admin`, `password: strongpassword123`, `dataset: ma_pipeline_db`) or check the output file:   `data/gold_data_.parquet`
+    
 6. Shutdown. 
 When finished, stop the containers:  
 ```bash
@@ -170,7 +177,7 @@ Access Airflow at [http://localhost:8080](http://localhost:8080) and run the `ma
 * Full GitHub repository and working pipeline
 * README documentation and architecture diagram
 * 5–10 minute walkthrough video
-* Final results file (`/data/gold/final_results.parquet`) with ΔEV% and regression output
+* Final results file (`/data/final_results.parquet`) with ΔEV% and regression output
 
 ---
 

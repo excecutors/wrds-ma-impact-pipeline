@@ -36,7 +36,6 @@ We are targeting **Mergers & Acquisitions (M&A)** occurring between **2000-01-01
 | `dealtype` | Filter: Must be 'Merge/Acquisition' |
 | `dealclass` | e.g., Private Equity, Corporate, etc. |
 | `percentacquired` | Filter: Must be > 50% (Controlling interest)  |
-| `lastupdated` | Timestamp of last update  |
 
 ---
 
@@ -53,12 +52,10 @@ We are targeting **Mergers & Acquisitions (M&A)** occurring between **2000-01-01
 | Field | Description |
 | :--- | :--- |
 | `Companyid` | ID of the Buy Side Company (The Acquirer) |
-| `ticker` | Ticker symbol of the acquirer  |
 | `targetcompanyid` | ID of the Acquiree  |
 | `targetcompanyname` | Name of the Acquiree  |
 | `Dealdate` | Date of the deal  |
 | `Dealtype` | Filter: `LIKE '%Merger/Acquisition%'`  |
-| `lastupdated` | Timestamp of last update  |
 
 ---
 
@@ -74,7 +71,6 @@ We are targeting **Mergers & Acquisitions (M&A)** occurring between **2000-01-01
 | :--- | :--- |
 | `companyid` | PitchBook Company ID  |
 | `companyname` | Company Name  |
-| `cikcode` | SEC CIK Code (Important for linking)  |
 | `businessstatus` | e.g. Bankruptcy: Admin/Reorg; Out of Business; Startup  |
 | `ownershipstatus` | Filter: Must be 'Publicly Held'  |
 | `companyfinancingstatus` | e.g. Angel-Backed; Corporation; Failed Transaction (Angel)  |
@@ -86,7 +82,6 @@ We are targeting **Mergers & Acquisitions (M&A)** occurring between **2000-01-01
 | `primaryindustrysector` | Sector (e.g., Information Technology)  |
 | `primaryindustrygroup` | Industry Group  |
 | `primaryindustrycode` | Industry Code (e.g. Machinery (B2B); Energy Production)  |
-| `lastupdated` | Timestamp of last update  |
 
 ---
 
@@ -116,9 +111,10 @@ We are targeting **Mergers & Acquisitions (M&A)** occurring between **2000-01-01
 | Field | Description |
 | :--- | :--- |
 | `gvkey` | Compustat Key  |
-| `cik` | CIK Code  |
-| `rdq` | **Report Date (Crucial)**. Use this to ensure data was "market known" at *t-5* or *t+30*  |
-| `apdedateq` | Actual Period End Date (e.g., 2024-03-31) |
+| `fyearq` | Fiscal Year |
+| `fqtr` | Fiscal Quarter |
+| `tic` | Ticker Symbol |
+| `curncdq` | Native Currency Code |
 | `dlttq` | Long-Term Debt - Total |
 | `dlcq` | Debt in Current Liabilities |
 | `cheq` | Cash and Short-Term Investments |

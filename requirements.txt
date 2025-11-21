@@ -8,6 +8,7 @@ psycopg2-binary # Driver for Postgres
 # Data Transformation & Analysis
 pandas
 polars           #
+pyarrow          # Required for polars to_pandas conversion
 statsmodels      #
 
 # Utils

@@ -4,7 +4,7 @@ We are targeting **Mergers & Acquisitions (M&A)** occurring between **2000-01-01
 **Description of Bronze Layer:** Direct replica of WRDS tables. Applied basic filtering. No joins or renaming applied.
   
 **Target Filters:**
-* **Industry:** Technology and Financial Services.
+* **Industry:** All Industry.
 * **Acquirer:** North American , Publicly Traded companies.
 * **Deal Specifics:** US Dollars (USD) , Acquisition ratio > 50%.
 
@@ -123,8 +123,8 @@ We are targeting **Mergers & Acquisitions (M&A)** occurring between **2000-01-01
 | `dlcq` | Debt in Current Liabilities |
 | `cheq` | Cash and Short-Term Investments |
 | `prccq` | Price Close - Quarter|
-| `prchq` |  (prchq) Price High - Quarter|
-| `prclq` |  (prclq) Price Low - Quarter|
+| `prchq` |   Price High - Quarter|
+| `prclq` |   Price Low - Quarter|
 | `cshoq` | Common Shares Outstanding|
 | `oibdpq` | Operating Income Before Depreciation (EBITDA) |
 

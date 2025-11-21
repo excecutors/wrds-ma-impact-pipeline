@@ -133,7 +133,7 @@ POSTGRES_PASSWORD=strongpassword123
 POSTGRES_DB=ma_pipeline_db
 
 # Your WRDS Username (Required)
-WRDS_USER=your_wrds_username
+WRDS_USERNAME=your_wrds_username
 WRDS_PASSWORD=our_wrds_password
 ```
 

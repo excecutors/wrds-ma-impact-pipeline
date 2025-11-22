@@ -40,6 +40,12 @@ def load_data(path):
 
 df = load_data(DATA_PATH)
 
+# keep the most realistic 99% of values (SHORT TERM FIX)
+
+q99 = df["deal_size_ratio"].quantile(0.99)
+df = df[df["deal_size_ratio"] <= q99]
+
+
 # Stop the app if industry is missing (just a protection so user don't see broken charts)
 # ------------------------------------------------------
 
@@ -54,14 +60,14 @@ if "industry" not in df.columns:
 industries = df["industry"].dropna().unique().tolist()
 selected_industries = st.sidebar.multiselect("Industry filter:", industries, industries)
 
-# companies = df["acquirer_ticker"].dropna().unique().tolist()
-# selected_companies = st.sidebar.multiselect("Company filter:", companies, companies)
+### companies = df["acquirer_ticker"].dropna().unique().tolist()
+### selected_companies = st.sidebar.multiselect("Company filter:", companies, companies)
 
 # Filter the Gold dataset based on user selections (for selected industry & company)
 # ------------------------------------------------------
 
 df_filt = df[df["industry"].isin(selected_industries)]
-# df_filt = df_filt[df_filt["acquirer_ticker"].isin(selected_companies)]
+### df_filt = df_filt[df_filt["acquirer_ticker"].isin(selected_companies)]
 
 # Compute Headline KPIs (formula in gold_layer.py)
 
@@ -87,11 +93,31 @@ col3.metric("Deals", len(df_filt))
 st.subheader("ΔEV% by Industry")
 st.bar_chart(df_filt.groupby("industry")["delta_ev_pct"].mean())
 
-# Chart 2: Deal Size Ratio vs EV Growth (scatter input)
+# Chart 2: Deal Size Ratio vs EV Growth (scatter input) -- sample the scatter if large
+
+# X-axis: Deal Size Ratio (AKA How big the acquisition was relative to the acquirer’s own size)
+    #  deal_size_ratio = deal_size / market_cap_pre
+
+# Y-axis: ΔEV% (Enterprise Value % change) AKA How much the acquirer’s enterprise value increased or decreased after the deal
+    # delta_ev_pct = (EV_post – EV_pre) / EV_pre
 # ------------------------------------------------------
 
+# st.subheader("ΔEV% vs Deal Size Ratio")
+# scatter_df = df_filt[["deal_size_ratio", "delta_ev_pct"]].rename(
+#     columns={"deal_size_ratio": "x", "delta_ev_pct": "y"}
+# )
+# st.scatter_chart(scatter_df)
+
 st.subheader("ΔEV% vs Deal Size Ratio")
-scatter_df = df_filt[["deal_size_ratio", "delta_ev_pct"]].rename(
-    columns={"deal_size_ratio": "x", "delta_ev_pct": "y"}
+
+max_points = 2000
+if len(df_filt) > max_points:
+    scatter_source = df_filt.sample(max_points, random_state=42)
+else:
+    scatter_source = df_filt
+
+st.scatter_chart(
+    scatter_source,
+    x="deal_size_ratio",
+    y="delta_ev_pct"
 )
-st.scatter_chart(scatter_df)

@@ -16,3 +16,5 @@ python-dotenv    # For loading .env files
 
 # Orchestration & Testing
 pytest           #
+
+streamlit

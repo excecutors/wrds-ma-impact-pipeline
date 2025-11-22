@@ -12,10 +12,11 @@ DATA_PATH = "data/gold_data.parquet"
 # ------------------------------------------------------
 
 st.set_page_config(page_title="M&A Impact Dashboard", layout="wide")
-st.title("M&A Impact Dashboard – Prototype")
+st.title("M&A Impact Dashboard")
 
 # Cached function to load the data once (“Load the Gold data from disk only once. If the user refreshes or clicks filters, don’t reload the file.”)
 # ------------------------------------------------------
+
 
 @st.cache_data
 def load_data(path):
@@ -37,6 +38,7 @@ def load_data(path):
         df["delta_margin_pct"] = df["delta_ebitda_pct"]
 
     return df
+
 
 df = load_data(DATA_PATH)
 
@@ -72,12 +74,12 @@ df_filt = df[df["industry"].isin(selected_industries)]
 # Compute Headline KPIs (formula in gold_layer.py)
 
 # Avg ΔEV% (is the Average Enterprise Value Growth (%)): This shows how much the acquirers’ Enterprise Value changed after the acquisition
-    # Answers: EV = Market Cap + Debt - Cash
-    # from gold layer: ((ev_post - ev_pre) / ev_pre).alias("delta_ev_pct")
+# Answers: EV = Market Cap + Debt - Cash
+# from gold layer: ((ev_post - ev_pre) / ev_pre).alias("delta_ev_pct")
 
 # Avg ΔMargin% (AKA Average EBITDA Margin Growth (%) as said before): this approximates how the acquirer’s profitability changed after the deal
-    # Answers: Did the acquirer’s profitability improve post-acquisition?
-    # from gold layer: ((ebitda_post - ebitda_pre) / ebitda_pre).alias("delta_ebitda_pct")
+# Answers: Did the acquirer’s profitability improve post-acquisition?
+# from gold layer: ((ebitda_post - ebitda_pre) / ebitda_pre).alias("delta_ebitda_pct")
 
 # Deals: Count of Deals Currently Filtered (like user can filter tech-only, deals after 2010, high deal size ratio, etc)
 # ------------------------------------------------------
@@ -87,19 +89,28 @@ col1.metric("Avg ΔEV%", f"{df_filt['delta_ev_pct'].mean():.2%}")
 col2.metric("Avg ΔMargin%", f"{df_filt['delta_margin_pct'].mean():.2%}")
 col3.metric("Deals", len(df_filt))
 
-# Chart 1: EV Growth % by industry (bar chart with x-axis of industry, y-axis of avg EV%)
+# Chart 1a: EV Growth % by industry (bar chart with x-axis of industry, y-axis of avg EV%)
 # ------------------------------------------------------
 
 st.subheader("ΔEV% by Industry")
 st.bar_chart(df_filt.groupby("industry")["delta_ev_pct"].mean())
 
+# Chart 1b: ΔMarket Cap% by Industry
+st.subheader("ΔMarket Cap% by Industry")
+st.bar_chart(df_filt.groupby("industry")["delta_mkt_cap_pct"].mean())
+
+
+# Chart 1c: ΔEBITDA% by Industry
+st.subheader("ΔEBITDA% by Industry")
+st.bar_chart(df_filt.groupby("industry")["delta_ebitda_pct"].mean())
+
 # Chart 2: Deal Size Ratio vs EV Growth (scatter input) -- sample the scatter if large
 
 # X-axis: Deal Size Ratio (AKA How big the acquisition was relative to the acquirer’s own size)
-    #  deal_size_ratio = deal_size / market_cap_pre
+#  deal_size_ratio = deal_size / market_cap_pre
 
 # Y-axis: ΔEV% (Enterprise Value % change) AKA How much the acquirer’s enterprise value increased or decreased after the deal
-    # delta_ev_pct = (EV_post – EV_pre) / EV_pre
+# delta_ev_pct = (EV_post – EV_pre) / EV_pre
 # ------------------------------------------------------
 
 # st.subheader("ΔEV% vs Deal Size Ratio")
@@ -116,8 +127,4 @@ if len(df_filt) > max_points:
 else:
     scatter_source = df_filt
 
-st.scatter_chart(
-    scatter_source,
-    x="deal_size_ratio",
-    y="delta_ev_pct"
-)
+st.scatter_chart(scatter_source, x="deal_size_ratio", y="delta_ev_pct")

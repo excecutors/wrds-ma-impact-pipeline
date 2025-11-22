@@ -79,7 +79,7 @@ Pytest covers schema integrity, missing/null checks, and logical validation (e.g
 
 ### 7. Visualization
 
-Streamlit dashboard built from `data/gold/` to show results by industry or deal size.
+Streamlit dashboard built from `data/gold/` to show results by industry.
 
 ---
 

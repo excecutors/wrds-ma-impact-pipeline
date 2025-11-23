@@ -1,10 +1,24 @@
-.env
+# OS / Editor junk
 .DS_Store
-.venv/
-temp.ipynb
+.vscode/
 
+# Environment files
+.venv/
+.airflow-venv/
+.env
+
+# Python cache
 __pycache__/
 *.pyc
 
+# Airflow runtime files (never commit)
+airflow/airflow.db
+airflow/logs/
+airflow/webserver_config.py
 
-.vscode/
+# Jupyter / temp
+*.ipynb
+temp.ipynb
+
+# Local data outputs
+data/*.parquet

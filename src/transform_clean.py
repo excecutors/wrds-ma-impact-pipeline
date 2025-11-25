@@ -38,12 +38,19 @@ def transform_silver():
     q_comp = """
         SELECT 
             companyid, companyname, ticker, 
-            hqglobalsubregion, ownershipstatus, primaryindustrysector
+            hqglobalsubregion, ownershipstatus
         FROM bronze.ot_glb_company 
         WHERE hqglobalsubregion = 'North America' 
         AND ownershipstatus = 'Publicly Held'
     """
     df_comp = pl.read_database(q_comp, engine)
+
+    # C2. Industry Information
+    q_industry = """
+        SELECT ticker, primaryindustrysector        
+        FROM bronze.company_industry_relation
+    """
+    df_industry = pl.read_database(q_industry, engine)
 
     # D. Financials (Compustat)
     # apdedateq is the Actual Period End Date
@@ -54,7 +61,7 @@ def transform_silver():
     """
     df_fund = pl.read_database(q_fund, engine)
 
-    logging.info(f"Loaded: Deal({df_deal.height}), Rel({df_rel.height}), Comp({df_comp.height}), Fund({df_fund.height})")
+    logging.info(f"Loaded: Deal({df_deal.height}), Rel({df_rel.height}), Comp({df_comp.height}), Industry({df_industry.height}), Fund({df_fund.height})")
 
     # ==========================================
     # 2. Cleaning & Casting
@@ -87,6 +94,14 @@ def transform_silver():
         df_comp,
         on="acquirer_company_id",
         how="inner"
+    )
+
+    # 3.3 Acquirer -> Industry
+    df_merged = df_merged.join(
+        df_industry,
+        left_on="acquirer_ticker",
+        right_on="ticker",
+        how="left"
     )
 
     # ==========================================

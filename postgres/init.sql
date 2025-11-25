@@ -5,7 +5,7 @@ CREATE SCHEMA IF NOT EXISTS bronze; -- raw data ingested from external sources; 
 CREATE SCHEMA IF NOT EXISTS silver; -- cleaned and transformed data
 CREATE SCHEMA IF NOT EXISTS gold;   -- final analysis results
 
---- === BRONZE TABLES (Empty) ===
+--- === BRONZE TABLES ===
 
 CREATE TABLE IF NOT EXISTS bronze.ot_glb_deal (
     dealid BIGINT,
@@ -24,17 +24,14 @@ CREATE TABLE IF NOT EXISTS bronze.ot_glb_deal (
 CREATE TABLE IF NOT EXISTS bronze.ot_glb_company (
     companyid BIGINT,
     companyname VARCHAR(255),
+    ticker VARCHAR(50),
     businessstatus VARCHAR(100),
     ownershipstatus VARCHAR(100),
     companyfinancingstatus VARCHAR(100),
     universe VARCHAR(50),
     hqglobalsubregion VARCHAR(100),
     hqcountry VARCHAR(100),
-    ticker VARCHAR(50),
-    exchange VARCHAR,
-    primaryindustrysector VARCHAR(100),
-    primaryindustrygroup VARCHAR(100),
-    primaryindustrycode VARCHAR(100)
+    exchange VARCHAR
 );
 
 CREATE TABLE IF NOT EXISTS bronze.ot_glb_companybuysiderelation (
@@ -46,12 +43,9 @@ CREATE TABLE IF NOT EXISTS bronze.ot_glb_companybuysiderelation (
 );
 
 
-CREATE TABLE IF NOT EXISTS bronze.ot_glb_companyindustryrelation (
-    companyid BIGINT,
-    industrysector VARCHAR(100),
-    industrygroup VARCHAR(100),
-    industrycode VARCHAR(100),
-    isprimary VARCHAR(10)
+CREATE TABLE IF NOT EXISTS bronze.company_industry_relation (
+    ticker VARCHAR(50),
+    primaryindustrysector VARCHAR(100)
 );
 
 

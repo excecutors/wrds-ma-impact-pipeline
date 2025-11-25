@@ -87,17 +87,14 @@ def extract_and_load(db_wrds, db_postgres_engine):
             SELECT 
                 companyid
                 ,companyname
+                ,ticker
                 ,businessstatus
                 ,ownershipstatus
                 ,companyfinancingstatus
                 ,universe
                 ,hqglobalsubregion
                 ,hqcountry
-                ,ticker
                 ,exchange
-                ,primaryindustrysector
-                ,primaryindustrygroup
-                ,primaryindustrycode
             FROM pitchbk_other_row.ot_glb_company
             WHERE hqglobalsubregion = 'North America'
             AND ownershipstatus = 'Publicly Held'
@@ -138,25 +135,19 @@ def extract_and_load(db_wrds, db_postgres_engine):
 
     # 4. dim_company_industries
     try:
-        logging.info("Extracting 'ot_glb_companyindustryrelation'...")
-        company_industry_query = f"""
-            SELECT 
-                companyid
-                ,industrysector
-                ,industrygroup
-                ,industrycode
-                ,isprimary
-            FROM pitchbk_other_row.ot_glb_companyindustryrelation
-            WHERE companyid IN {tuple(list_north_america_public_companyid)}
-        """
-        df_company_ind = db_wrds.raw_sql(company_industry_query)
-        logging.info("Successfully loaded 'ot_glb_companyindustryrelation'.")
+        logging.info("Extracting 'company_industry.csv'...")
         
-        df_company_ind.to_sql('ot_glb_companyindustryrelation', db_postgres_engine, schema=bronze_schema, if_exists='replace', index=False)
-        logging.info("Successfully loaded 'ot_glb_company' into Bronze.")
+        current_dir = os.path.dirname(__file__)
+        csv_path = os.path.join(current_dir, 'company_industry.csv')
+        df_company_ind = pd.read_csv(csv_path)
+        
+        logging.info("Successfully loaded 'company_industry.cvs'.")
+        
+        df_company_ind.to_sql('company_industry_relation', db_postgres_engine, schema=bronze_schema, if_exists='replace', index=False)
+        logging.info("Successfully loaded 'company_industry_relation' into Bronze.")
         
     except Exception as e:
-        logging.error(f"Failed to process 'ot_glb_companyindustryrelation': {e}")
+        logging.error(f"Failed to process 'company_industry_relation': {e}")
         
         
     # 5. fact_financial_quarterly

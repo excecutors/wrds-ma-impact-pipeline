@@ -3,6 +3,8 @@
 
 import streamlit as st
 import pandas as pd
+import altair as alt
+import numpy as np
 import os
 
 DATA_PATH = "data/gold_data.parquet"
@@ -122,9 +124,53 @@ st.bar_chart(df_filt.groupby("industry")["delta_ebitda_pct"].mean())
 st.subheader("ΔEV% vs Deal Size Ratio")
 
 max_points = 2000
-if len(df_filt) > max_points:
-    scatter_source = df_filt.sample(max_points, random_state=42)
-else:
-    scatter_source = df_filt
+scatter_source = (
+    df_filt.sample(max_points, random_state=42)
+    if len(df_filt) > max_points
+    else df_filt
+)
 
-st.scatter_chart(scatter_source, x="deal_size_ratio", y="delta_ev_pct")
+# Fit a linear regression line
+X = scatter_source["deal_size_ratio"].values
+Y = scatter_source["delta_ev_pct"].values
+
+beta1, beta0 = np.polyfit(X, Y, 1)
+
+# regression line
+x_line = np.linspace(X.min(), X.max(), 100)
+y_line = beta0 + beta1 * x_line
+
+line_df = pd.DataFrame({"deal_size_ratio": x_line, "delta_ev_pct": y_line})
+
+points = (
+    alt.Chart(scatter_source)
+    .mark_circle(size=60, opacity=0.5)
+    .encode(
+        x=alt.X("deal_size_ratio", title="Deal Size Ratio"),
+        y=alt.Y("delta_ev_pct", title="ΔEV%"),
+        tooltip=["deal_size_ratio", "delta_ev_pct"],
+    )
+)
+
+reg_line = (
+    alt.Chart(line_df)
+    .mark_line(color="red", size=1)  #
+    .encode(x="deal_size_ratio", y="delta_ev_pct")
+)
+
+st.altair_chart(points + reg_line, use_container_width=True)
+
+# Interpretation of the regression slope
+if not np.isnan(beta1):
+    interpretation_text = (
+        f"The regression slope is **{beta1:.4f}**, indicating that for each 1-unit increase "
+        f"in deal size ratio, the expected change in ΔEV% is **{beta1:.4f}** units, on average. "
+        "This captures the linear association between acquisition size (relative to the acquirer) "
+        "and post-deal enterprise value growth."
+    )
+else:
+    interpretation_text = (
+        "Not enough data to compute a regression under the current filters."
+    )
+
+st.markdown(interpretation_text)

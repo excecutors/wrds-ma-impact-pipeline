@@ -38,7 +38,7 @@ jobs:
         pip install "apache-airflow==2.9.3" --constraint "https://raw.githubusercontent.com/apache/airflow/constraints-2.9.3/constraints-3.11.txt"
         python - << 'EOF'
         from airflow.models import DagBag
-        d = DagBag("airflow/dags")
+        d = DagBag(dag_folder="airflow/dags")
         if d.import_errors:
             print("ERROR: DAG import errors detected:")
             for f, e in d.import_errors.items():

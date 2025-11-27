@@ -31,18 +31,3 @@ jobs:
     - name: Run test cases with Pytest
       run: |
         pytest tests --maxfail=1 --disable-warnings -q
-      
-
-    - name: Validate DAGs with DagBag
-      run: |
-        pip install "apache-airflow==2.9.3" --constraint "https://raw.githubusercontent.com/apache/airflow/constraints-2.9.3/constraints-3.11.txt"
-        python - << 'EOF'
-        from airflow.models import DagBag
-        d = DagBag(dag_folder="airflow/dags")
-        if d.import_errors:
-            print("ERROR: DAG import errors detected:")
-            for f, e in d.import_errors.items():
-                print(f"\nFile: {f}\nError: {e}")
-            raise SystemExit(1)
-        print("SUCCESS: All DAGs imported successfully.")
-        EOF

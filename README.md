@@ -1,3 +1,4 @@
+[![WRDS Merger and Aquisition Impact Pipeline](https://github.com/excecutors/wrds-ma-impact-pipeline/actions/workflows/main.yml/badge.svg)](https://github.com/excecutors/wrds-ma-impact-pipeline/actions/workflows/main.yml)
 # M&A Value Impact Pipeline (Local Deployment)
 
 ## Project Description

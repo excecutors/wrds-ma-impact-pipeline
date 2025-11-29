@@ -66,9 +66,41 @@ EV_post = EV in quarter ending immediately after deal date
 
 Runs regression: `ΔEV% ~ deal_size_ratio + industry_dummies`.
 
-### 4. Orchestration
+### 4. Airflow Orchestration
 
-An Airflow DAG automates the full workflow — extract, transform, analyze — and can be scheduled to run daily or on demand.
+We use **Apache Airflow** to automate the full M&A Value Impact pipeline, from raw WRDS extraction to final Gold dataset creation.
+
+Airflow runs **outside Docker** in a local Python virtual environment, while the actual data processing happens **inside the app container** using `docker exec`. This separation avoids dependency conflicts, improves reliability, and keeps pipeline execution isolated and reproducible.
+
+### What Airflow Does
+
+The DAG (`ma_value_impact_pipeline`) executes the classic **Bronze → Silver → Gold** workflow:
+
+1. **load_bronze**: Pulls WRDS datasets (PitchBook + Compustat fundq) and loads them into Postgres Bronze tables.
+2. **build_silver**: Cleans data, joins deal + financials, links gvkeys, and standardizes quarter alignment.
+3. **build_gold**: Computes EV_pre, EV_post, ΔEV%, profitability changes, and writes both the Gold table and a parquet artifact.
+
+Airflow provides:
+
+* Automatic retries
+* Clear dependency graphs
+* Detailed logs for each stage
+* Fully reproducible workflows
+* Optional scheduling
+
+### Running Airflow Locally
+
+A full setup guide is provided here:
+**`airflow/Airflow_env_README.md`**
+
+This includes instructions for:
+
+* Creating and activating the Airflow virtual environment
+* Cleaning/resetting ports (8080/8793)
+* Initializing the metadata database
+* Running the scheduler and webserver
+* Connecting Airflow to the Docker-based app
+* Triggering and verifying the DAG
 
 ### 5. Containerization and CI/CD
 

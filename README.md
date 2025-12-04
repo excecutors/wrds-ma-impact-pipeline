@@ -3,7 +3,7 @@
 
 ## Project Description
 
-This project builds a complete data engineering pipeline that explores how mergers and acquisitions (M&A) affect a company's enterprise value (EV) and profitability. The data comes from WRDS (PitchBook, and Compustat) and moves through a full local data workflow: ingestion, storage, transformation, orchestration, analysis, and testing.
+This project builds a complete data engineering pipeline that explores how mergers and acquisitions (M&A) affect a company's enterprise value (EV) and profitability. The data comes from WRDS (PitchBook, and Compustat), AlphaVantage and moves through a full local data workflow: ingestion, storage, transformation, orchestration, analysis, and testing.
 
 Everything runs locally using **Docker and Apache Airflow**, with data stored in **PostgreSQL** and files organized in Bronze/Silver/Gold layers. This setup demonstrates modular design, reproducibility, and automation through GitHub Actions.
 
@@ -12,6 +12,7 @@ Everything runs locally using **Docker and Apache Airflow**, with data stored in
 ## Research Question
 
 When a public company completes an acquisition, does its enterprise value improve from the prior quarter to the following quarter, and how does this vary by deal size, industry, or acquirer characteristics?
+
 ---
 
 ## Architecture Overview
@@ -40,6 +41,36 @@ project-root/
 ```
 
 ---
+
+## Data Source   
+
+To investigate the impact of M&A activity on enterprise value, our pipeline aggregates data from three primary sources covering transaction details, corporate financials, and industry classifications.   
+
+#### 1. Transaction & Financial Data (WRDS)  
+
+We utilize the Wharton Research Data Services (WRDS) platform to access our core datasets. This data is ingested programmatically using the `wrds` Python library, connecting directly to the WRDS PostgreSQL database. The extraction logic is encapsulated in `src/extract_wrds.py`.  
+
+**PitchBook (via WRDS):**  
+
+- Purpose: Provides the universe of M&A deals (`Merger/Acquisition`), including transaction dates, deal size, status, and buy-side relationships (linking deals to acquirers).  
+
+- Tables Used: `ot_glb_deal`(https://wrds-www.wharton.upenn.edu/pages/get-data/pitchbook/other-row/deal/), `ot_glb_company`(https://wrds-www.wharton.upenn.edu/pages/get-data/pitchbook/other-row/company/), `ot_glb_companybuysiderelation`(https://wrds-www.wharton.upenn.edu/pages/get-data/pitchbook/other-row/company-buy-side-relation/).
+
+**Compustat North America (via WRDS):**  
+
+- Purpose: Provides quarterly fundamental financial data for the acquiring companies. We use this to retrieve point-in-time metrics such as Long-Term Debt, Cash, EBITDA, and Stock Prices to calculate Enterprise Value (EV) pre- and post-deal.  
+
+- Table Used: `fundq`() (Fundamentals Quarterly)(https://wrds-www.wharton.upenn.edu/pages/get-data/compustat-capital-iq-standard-poors/compustat/north-america-daily/fundamentals-quarterly/).
+
+#### 2. Industry Classification (AlphaVantage)
+
+We source standardized industry and sector classifications from **AlphaVantage**(https://www.alphavantage.co/documentation/) to ensure accurate grouping of companies.
+
+- Ingestion Strategy: Since the AlphaVantage API requires a unique API key and has rate limits, we have pre-fetched the necessary industry data to ensure smooth reproducibility for all users (including those without an API key).
+
+- Storage: This data is stored locally as a static CSV file at `./src/company_industry.csv`. The transformation pipeline reads directly from this file to join industry information with the PitchBook company records.
+
+--
 
 ## Pipeline Components
 

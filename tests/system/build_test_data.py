@@ -34,11 +34,11 @@ def build_test_data():
     os.makedirs(output_dir, exist_ok=True)
 
     fixtures = {
-        "ot_glb_deal": "tests/system/fixtures/bronze_ot_glb_deal.parquet",
-        "ot_glb_company": "tests/system/fixtures/bronze_ot_glb_company.parquet",
-        "ot_glb_companybuysiderelation": "tests/system/fixtures/bronze_ot_glb_companybuysiderelation.parquet",
-        "company_industry_relation": "tests/system/fixtures/bronze_company_industry_relation.parquet",
-        "fundq": "tests/system/fixtures/bronze_fundq.parquet",
+        "ot_glb_deal": "tests/system/fixtures/ot_glb_deal.parquet",
+        "ot_glb_company": "tests/system/fixtures/ot_glb_company.parquet",
+        "ot_glb_companybuysiderelation": "tests/system/fixtures/ot_glb_companybuysiderelation.parquet",
+        "company_industry_relation": "tests/system/fixtures/company_industry_relation.parquet",
+        "fundq": "tests/system/fixtures/fundq.parquet",
     }
 
     for table, path in fixtures.items():

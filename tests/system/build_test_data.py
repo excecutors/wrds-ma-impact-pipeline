@@ -13,11 +13,13 @@ logging.basicConfig(
 
 def init_schemas(engine):
     """
-    Add the bronze, silver, and gold schemas to the PostgreSQL database.
+    Ensure the bronze, silver, and gold schemas exist in the PostgreSQL database.
     """
-    with engine.connect() as conn:
+    with engine.begin() as conn:
         for schema in ["bronze", "silver", "gold"]:
+            logging.info(f"Ensuring schema '{schema}' exists...")
             conn.execute(text(f"CREATE SCHEMA IF NOT EXISTS {schema}"))
+    logging.info("Schemas bronze, silver, and gold are ready.")
 
 
 def build_test_data():

@@ -1,0 +1,41 @@
+import os
+import polars as pl
+
+
+def test_gold_parquet_schema_and_nonempty():
+    """
+    1. Ensure the file path to the gold dataset exists.
+    2. Check if the gold table contain all the required columns in the correct orders.
+    3. Ensure that the table is not empty.
+    """
+    parquet_path = os.path.join("tests", "system", "data", "gold_data.parquet")
+
+    # Ensure file exists
+    assert os.path.exists(
+        parquet_path
+    ), f"Gold Parquet file not found at {parquet_path}"
+
+    df = pl.read_parquet(parquet_path)
+
+    # Schema Check
+    expected_cols = {
+        "dealid",
+        "acquirer_ticker",
+        "primaryindustrysector",
+        "dealsize",
+        "market_cap_pre",
+        "ev_pre",
+        "ebitda_pre",
+        "market_cap_post",
+        "ev_post",
+        "ebitda_post",
+        "delta_ev_pct",
+        "delta_mkt_cap_pct",
+        "delta_ebitda_pct",
+        "deal_size_ratio",
+    }
+    actual_cols = set(df.columns)
+    assert actual_cols == expected_cols, "Gold schema mismatch!"
+
+    # Check for non-emptiness
+    assert df.shape[0] > 0, "Gold Parquet file is empty"

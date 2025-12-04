@@ -1,4 +1,4 @@
-name: WRDS Merger and Aquisition Impact Pipeline
+name: WRDS Merger and Acquisition Impact Pipeline
 
 on: [push, pull_request]
 
@@ -6,28 +6,48 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:14-alpine
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: testdb
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd="pg_isready -U test -d testdb"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    env:
+      DB_URL: postgresql://test:test@localhost:5433/testdb
+
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: 3.11.9
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11.9"
 
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
 
+      - name: Lint with flake8
+        run: |
+          pip install flake8
+          flake8 src airflow/dags --select=E9,F63,F7,F82 --count --show-source --statistics
+          flake8 src airflow/dags --count --exit-zero --max-complexity=10 --max-line-length=200
 
-    - name: Lint with flake8
-      run: |
-        pip install flake8
-        flake8 src airflow/dags --select=E9,F63,F7,F82 --count --show-source --statistics
-        flake8 src airflow/dags --count --exit-zero --max-complexity=10 --max-line-length=200
+      - name: Load Bronze fixtures into Postgres
+        run: |
+          python tests/system/build_test_data.py
 
-
-    - name: Run test cases with Pytest
-      run: |
-        pytest tests --maxfail=1 --disable-warnings -q
+      - name: Run test cases with Pytest
+        run: |
+          pytest tests --maxfail=1 --disable-warnings -q

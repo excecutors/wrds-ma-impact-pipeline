@@ -1,0 +1,42 @@
+import polars as pl
+from test_src.utils.db import get_postgres_engine
+
+
+def test_silver_schema_and_nonempty():
+    """
+    1. Check if the silver table contain all the required columns in the correct orders.
+    2. Ensure that the table is not empty.
+    """
+    engine = get_postgres_engine()
+    df = pl.read_database("SELECT * FROM silver.deal_financials_linked;", engine)
+
+    # Check schema
+    expected_columns = {
+        "dealid",
+        "announceddate",
+        "dealstatus",
+        "dealsize",
+        "target_name",
+        "acquirer_name",
+        "acquirer_ticker",
+        "primaryindustrysector",
+        "period_end_pre",
+        "stock_price_pre",
+        "shares_outstanding_pre",
+        "long_term_debt_pre",
+        "current_debt_pre",
+        "cash_pre",
+        "ebitda_pre",
+        "period_end_post",
+        "stock_price_post",
+        "shares_outstanding_post",
+        "long_term_debt_post",
+        "current_debt_post",
+        "cash_post",
+        "ebitda_post",
+    }
+    actual_cols = set(df.columns)
+    assert actual_cols == expected_columns, "Silver schema mismatch!"
+
+    # Check for non-emptiness
+    assert df.shape[0] > 0, "Silver table is empty"

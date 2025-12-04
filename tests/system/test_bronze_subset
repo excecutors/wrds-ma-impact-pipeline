@@ -1,0 +1,75 @@
+import polars as pl
+from test_src.utils.db import get_postgres_engine
+
+
+def test_bronze_schemas_and_nonempty():
+    """
+    1. Check if the bronze tables contain all the required columns in the correct orders.
+    2. Ensure that the table is not empty.
+    """
+    engine = get_postgres_engine()
+
+    expected_schemas = {
+        "ot_glb_deal": {
+            "dealid",
+            "companyid",
+            "companyname",
+            "dealdate",
+            "announceddate",
+            "dealsize",
+            "nativecurrencyofdeal",
+            "dealstatus",
+            "dealtype",
+            "dealclass",
+            "percentacquired",
+        },
+        "ot_glb_company": {
+            "companyid",
+            "companyname",
+            "ticker",
+            "businessstatus",
+            "ownershipstatus",
+            "companyfinancingstatus",
+            "universe",
+            "hqglobalsubregion",
+            "hqcountry",
+            "exchange",
+        },
+        "ot_glb_companybuysiderelation": {
+            "companyid",
+            "targetcompanyid",
+            "targetcompanyname",
+            "Dealdate",
+            "Dealtype",
+        },
+        "company_industry_relation": {
+            "ticker",
+            "primaryindustrysector",
+        },
+        "fundq": {
+            "gvkey",
+            "fyearq",
+            "fqtr",
+            "apdedateq",
+            "tic",
+            "curncdq",
+            "dlttq",
+            "dlcq",
+            "cheq",
+            "prccq",
+            "prchq",
+            "prclq",
+            "cshoq",
+            "oibdpq",
+        },
+    }
+
+    for table, expected_cols in expected_schemas.items():
+        df = pl.read_database(f"SELECT * FROM bronze.{table};", engine)
+
+        # Check schema
+        actual_cols = set(df.columns)
+        assert actual_cols == expected_cols, f"Schema mismatch in {table}"
+
+        # Check for non-emptiness
+        assert df.shape[0] > 0, f"{table} is empty"

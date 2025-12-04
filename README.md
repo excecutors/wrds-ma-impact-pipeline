@@ -28,11 +28,12 @@ project-root/
 ├── src/
 │   ├── extract_wrds.py       ← Pulls M&A + Compustat data from WRDS
 │   ├── transform_clean.py    ← Cleans and joins deal + financial data
-│   ├── analyze_regression.py ← Calculates ΔEV% and runs regression
 │   └── utils/                ← Helper functions and schema validation
 │       └── db.py               # Database connection helper
 ├── postgres/
 │   └── init.sql                # Database schema initialization (Bronze/Silver/Gold)
+├── streamlit_app/              
+│   └── app.py                  # Streamlit UI 
 ├── tests/                    ← Pytest unit and data quality tests
 ├── .env                        # Secrets (NOT synced to Git)
 ├── .gitignore                  # Git ignore rules
@@ -95,7 +96,7 @@ EV_post = EV in quarter ending immediately after deal date
 ΔMargin% = EBITDA_margin_post − EBITDA_margin_pre
 ```
 
-Runs regression: `ΔEV% ~ deal_size_ratio + industry_dummies`.
+Runs regression: `ΔEV% ~ deal_size_ratio`.
 
 ### 4. Airflow Orchestration
 
@@ -177,7 +178,7 @@ Streamlit dashboard built from `data/gold/` to show results by industry.
 * **Storage:** PostgreSQL, MinIO (S3)
 * **Orchestration:** Apache Airflow (Docker Compose)
 * **CI/CD:** GitHub Actions, Pytest
-* **Visualization:** Streamlit or Power BI (optional)
+* **Visualization:** Streamlit
 
 ---
 
@@ -282,11 +283,11 @@ graph TD
         C --> C1 --> C2 --> C3 --> C4 --> C5
     end
     
-    subgraph ANALYSIS["ANALYSIS LAYER"]
-        D[analyze_regression.py]
+    subgraph ANALYSIS["VISUALIZATION & REGRESSION LAYER"]
+        D[app.py]
         D1["read gold"]
-        D2["regression"]
-        D3["save results"]
+        D2[Apply filters & compute KPIs]
+        D3["regression"]
         D4["charts"]
         D --> D1 --> D2 --> D3 --> D4
     end

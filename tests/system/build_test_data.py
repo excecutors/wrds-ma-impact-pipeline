@@ -47,11 +47,11 @@ def build_test_data():
         df = pd.read_parquet(path)
         df.to_sql(table, engine, schema="bronze", if_exists="replace", index=False)
 
-    from transform_clean2 import transform_silver
+    from test_src.transform_clean2 import transform_silver
 
     transform_silver()
 
-    from gold_layer2 import transform_gold
+    from test_src.gold_layer2 import transform_gold
 
     transform_gold(output_dir=output_dir)
 

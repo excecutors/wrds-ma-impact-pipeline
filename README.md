@@ -1,5 +1,8 @@
 [![WRDS Merger and Aquisition Impact Pipeline](https://github.com/excecutors/wrds-ma-impact-pipeline/actions/workflows/main.yml/badge.svg)](https://github.com/excecutors/wrds-ma-impact-pipeline/actions/workflows/main.yml)
+
 # M&A Value Impact Pipeline (Local Deployment)
+
+**Project Walkthrough Video:** https://youtu.be/WwxNejxqRlw?si=C5GvmehoUwO3_ISB
 
 ## Project Description
 
@@ -149,9 +152,83 @@ Everything runs in Docker Compose with Airflow, Postgres, and MinIO containers. 
 
 Pytest covers schema integrity, missing/null checks, and logical validation (e.g., deal sizes not negative).
 
-### 7. Visualization
+### 7. Streamlit Visualization
 
-Streamlit dashboard built from `data/gold/` to show results by industry.
+The Streamlit app provides an interactive interface for exploring the impact of mergers and acquisitions across industries. It reads directly from the **Gold Layer Parquet output (`data/gold_data.parquet`)**, ensuring the dashboard always reflects the finalized, analysis-ready dataset.
+
+#### What the Dashboard Does
+
+Streamlit implements an analytics layer on top of the Gold dataset:
+
+1. **Cached Gold Data Loading**
+   Uses `@st.cache_data` to load the dataset once. Subsequent interactions (filters, refreshes) require no reload.
+
+2. **Column Harmonization**
+
+   * Renames `primaryindustrysector → industry` when needed.
+   * If `delta_margin_pct` is missing, it substitutes **EBITDA growth (`delta_ebitda_pct`)** as a profitability proxy.
+
+3. **Outlier Trimming (99th Percentile)**
+   Removes extreme `deal_size_ratio` values to keep scatter plots interpretable.
+
+4. **Interactive Filters**
+
+   * Sidebar multi-select for **industry** (defaults to all industries).
+   * All charts and KPIs update reactively.
+
+5. **Headline KPIs**
+   Displayed at the top of the dashboard:
+
+   * **Avg ΔEV%**: Average enterprise value growth after the acquisition
+   * **Avg ΔMargin%**: EBITDA growth proxy (profitability change)
+   * **Deals**: Number of deals in the filtered sample
+
+6. **Industry-Level Charts**
+   Computed dynamically:
+
+   * ΔEV% by Industry
+   * ΔMarket Cap% by Industry
+   * ΔEBITDA% by Industry
+
+7. **Deal Size vs ΔEV% Regression**
+   The app constructs a scatter plot and overlays a regression line:
+
+   * **X:** `deal_size_ratio` (deal size relative to acquirer)
+   * **Y:** `delta_ev_pct` (enterprise value growth)
+   * Downsampling if >2,000 points
+   * `numpy.polyfit` used for slope/line fitting
+   * Text summary explains the estimated slope (economic interpretation)
+
+### Gold Layer Inputs Used by Streamlit
+
+The app directly uses the Gold metrics created in `gold_layer.py`:
+
+| Column              | Purpose                           |
+| ------------------- | --------------------------------- |
+| `delta_ev_pct`      | Target variable for EV growth     |
+| `delta_mkt_cap_pct` | Market cap growth (robustness)    |
+| `delta_ebitda_pct`  | Profitability change proxy        |
+| `delta_margin_pct`  | Fallback = EBITDA growth          |
+| `deal_size_ratio`   | Key explanatory variable          |
+| `industry`          | Main filtering/grouping dimension |
+
+### Running the Dashboard
+
+Inside the app container:
+
+```bash
+docker exec -it ma_project_app bash
+cd /workspace
+streamlit run streamlit_app/app.py --server.address=0.0.0.0 --server.port=8501
+```
+
+Open the dashboard in your browser:
+
+```
+http://localhost:8501
+```
+
+The application automatically loads `data/gold_data.parquet` and renders all KPIs, charts, and regression analysis based on the Gold layer outputs.
 
 ---
 

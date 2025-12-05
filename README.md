@@ -147,7 +147,7 @@ Everything runs in Docker Compose with Airflow, Postgres, and MinIO containers. 
 
 ### 6. Testing
 
-Pytest covers schema integrity, missing/null checks, and logical validation (e.g., deal sizes not negative). Includes a small regression smoke test.
+Pytest covers schema integrity, missing/null checks, and logical validation (e.g., deal sizes not negative).
 
 ### 7. Visualization
 

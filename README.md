@@ -71,7 +71,14 @@ We source standardized industry and sector classifications from **AlphaVantage**
 
 - Storage: This data is stored locally as a static CSV file at `./src/company_industry.csv`. The transformation pipeline reads directly from this file to join industry information with the PitchBook company records.
 
---
+
+## Prerequisites
+You must have a WRDS account with access to PitchBook and Compustat databases.
+
+- **Register for WRDS access:** https://library.fuqua.duke.edu/wrdsinfo.htm
+- **Important:** After registration, you must set up **2-Factor Authentication** before you can access the API.
+
+
 
 ## Pipeline Components
 
@@ -189,7 +196,13 @@ git clone https://github.com/excecutors/wrds-ma-impact-pipeline.git
 cd wrds-ma-impact-pipeline
 ```
 2. Setup Configuration
-Create a `.env` file in the project root and fill in your credentials:  
+
+**Prerequisites:** You must have a WRDS account with access to PitchBook and Compustat databases.
+
+- **Register for WRDS access:** https://library.fuqua.duke.edu/wrdsinfo.htm
+- **Important:** After registration, you must set up **2-Factor Authentication** before you can access the API.
+
+Once you have your WRDS credentials, create a `.env` file in the project root:  
 ```
 # .env
 # Local Database Credentials (DO NOT CHANGE)
@@ -197,9 +210,11 @@ POSTGRES_USER=admin
 POSTGRES_PASSWORD=strongpassword123
 POSTGRES_DB=ma_pipeline_db
 
-# Your WRDS Username (Required)
+# Your WRDS Credentials (Required)
+# Register at: https://library.fuqua.duke.edu/wrdsinfo.htm
+# Setup 2FA before API access
 WRDS_USERNAME=your_wrds_username
-WRDS_PASSWORD=our_wrds_password
+WRDS_PASSWORD=your_wrds_password
 ```
 
 3. Start the Environment

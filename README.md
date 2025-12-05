@@ -22,26 +22,43 @@ When a public company completes an acquisition, does its enterprise value improv
 
 ```
 project-root/
-├── .devcontainer/              # Configuration for reproducible environment
+├── .devcontainer/              # Devcontainer for VS Code + Docker
 │   ├── devcontainer.json       # VS Code config
-│   ├── docker-compose.yml      # Defines App + Postgres services
+│   ├── docker-compose.yml      # App + Postgres services
 │   └── Dockerfile              # Python environment definition
-├── dags/                     ← Airflow DAG (extract → transform → analyze)
-│   └── ma_pipeline_dag.py
-├── src/
-│   ├── extract_wrds.py       ← Pulls M&A + Compustat data from WRDS
-│   ├── transform_clean.py    ← Cleans and joins deal + financial data
-│   └── utils/                ← Helper functions and schema validation
-│       └── db.py               # Database connection helper
+├── airflow/                    # Local Airflow home (DAG + config + metadata)
+│   ├── Airflow_env_README.md   # Airflow setup + doom reset guide
+│   └── dags/
+│       └── ma_pipeline_dag.py  # Airflow DAG (Bronze → Silver → Gold)
+├── src/                        # Core pipeline logic
+│   ├── bronze_extract_wrds.py  # Pulls M&A + Compustat data from WRDS (Bronze)
+│   ├── silver_transform_clean.py  # Cleans/joins deal + financial data (Silver)
+│   ├── gold_layer.py           # Computes EV, growth rates, writes Gold outputs
+│   └── utils/
+│       └── db.py               # Database connection helper (Postgres)
 ├── postgres/
-│   └── init.sql                # Database schema initialization (Bronze/Silver/Gold)
-├── streamlit_app/              
-│   └── app.py                  # Streamlit UI 
-├── tests/                    ← Pytest unit and data quality tests
-├── .env                        # Secrets (NOT synced to Git)
-├── .gitignore                  # Git ignore rules
+│   └── init.sql                # DB schema init (Bronze/Silver/Gold tables)
+├── streamlit_app/
+│   ├── app.py                  # Streamlit UI (reads Gold parquet / gold.final_data)
+│   └── dummy_data/             # Fallback demo data for UI
+│       └── final_results.parquet
+├── tests/                      # Unit + system/data tests
+│   ├── unit/
+│   └── system/
+├── doc/                        # Schema docs + diagrams
+│   ├── schema_bronze.md
+│   ├── schema_silver.md
+│   ├── schema_gold.md
+│   └── diagrams/
+├── data/                       # Output artifacts (not versioned in prod)
+│   └── gold_data.parquet
+├── .github/
+│   └── workflows/
+│       └── main.yml            # CI: linting, tests, basic checks
+├── .env                        # Local secrets (WRDS, DB) – not committed
+├── .gitignore
 ├── requirements.txt            # Python dependencies
-└── README.md                   # Project Documentation
+└── README.md                   # Project documentation
 ```
 
 ---

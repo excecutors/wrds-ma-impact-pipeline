@@ -40,8 +40,6 @@ project-root/
 │   └── init.sql                # DB schema init (Bronze/Silver/Gold tables)
 ├── streamlit_app/
 │   ├── app.py                  # Streamlit UI (reads Gold parquet / gold.final_data)
-│   └── dummy_data/             # Fallback demo data for UI
-│       └── final_results.parquet
 ├── tests/                      # Unit + system/data tests
 │   ├── unit/
 │   └── system/
